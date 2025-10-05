@@ -22,4 +22,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
-} 
+}

@@ -42,11 +42,9 @@ public class OrderServiceImpl implements OrderService {
                 if (product.getStock() < item.getQuantity()) {
                     throw new RuntimeException("Sản phẩm " + product.getName() + " không đủ hàng.");
                 }
-                // Luôn lấy giá từ database để tránh gian lận giá
                 item.setPrice(product.getPrice());
                 product.setStock(product.getStock() - item.getQuantity());
                 productRepository.save(product);
-                // Tính tổng tiền
                 total = total.add(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
         }
