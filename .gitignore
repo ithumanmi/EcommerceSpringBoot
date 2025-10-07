@@ -26,5 +26,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Docker
+docker-compose.override.yml
+.docker/
+
 # Application properties (optional, nếu không muốn đẩy lên git)
 # src/main/resources/application.properties 

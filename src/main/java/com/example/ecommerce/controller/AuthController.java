@@ -2,7 +2,7 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.AuthResponse;
 import com.example.ecommerce.dto.LoginRequest;
-import com.example.ecommerce.model.User;
+import com.example.ecommerce.dto.RegisterRequest;
 import com.example.ecommerce.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +27,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody User user) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
-            AuthResponse response = authService.register(user);
+            AuthResponse response = authService.register(registerRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new AuthResponse(e.getMessage()));

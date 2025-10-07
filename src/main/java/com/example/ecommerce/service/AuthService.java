@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.AuthResponse;
 import com.example.ecommerce.dto.LoginRequest;
+import com.example.ecommerce.dto.RegisterRequest;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.security.JwtUtil;
@@ -58,39 +59,41 @@ public class AuthService {
         }
     }
 
-    public AuthResponse register(User user) {
+    public AuthResponse register(RegisterRequest registerRequest) {
         // Validate input
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
+        if (registerRequest == null) {
+            throw new IllegalArgumentException("Registration data cannot be null");
         }
         
-        if (!StringUtils.hasText(user.getUsername())) {
+        if (!StringUtils.hasText(registerRequest.getUsername())) {
             throw new IllegalArgumentException("Username is required");
         }
         
-        if (!StringUtils.hasText(user.getPassword())) {
+        if (!StringUtils.hasText(registerRequest.getPassword())) {
             throw new IllegalArgumentException("Password is required");
         }
         
-        if (!StringUtils.hasText(user.getEmail())) {
+        if (!StringUtils.hasText(registerRequest.getEmail())) {
             throw new IllegalArgumentException("Email is required");
         }
 
         // Check if user already exists
-        if (userRepository.findByUsername(user.getUsername()) != null) {
+        if (userRepository.findByUsername(registerRequest.getUsername()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
 
         // Check if email already exists
-        if (userRepository.findByEmail(user.getEmail()) != null) {
+        if (userRepository.findByEmail(registerRequest.getEmail()) != null) {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        // Encode password and set default role
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (!StringUtils.hasText(user.getRole())) {
-            user.setRole("USER");
-        }
+        // Create new user
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setEmail(registerRequest.getEmail());
+        user.setFullName(registerRequest.getFullName());
+        user.setRole("USER"); // Default role
 
         userRepository.save(user);
         return new AuthResponse("User registered successfully. Please login.");

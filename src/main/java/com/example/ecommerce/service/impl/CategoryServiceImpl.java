@@ -27,4 +27,22 @@ public class CategoryServiceImpl implements CategoryService {
     public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }
+
+    @Override
+    public Category updateCategory(Long id, Category category) {
+        if (categoryRepository.existsById(id)) {
+            category.setId(id);
+            return categoryRepository.save(category);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean deleteCategory(Long id) {
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 } 
