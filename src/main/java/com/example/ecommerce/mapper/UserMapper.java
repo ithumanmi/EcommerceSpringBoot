@@ -1,6 +1,8 @@
 package com.example.ecommerce.mapper;
 
+import com.example.ecommerce.dto.UpdateUserDTO;
 import com.example.ecommerce.dto.UserDTO;
+import com.example.ecommerce.dto.UserProfileDTO;
 import com.example.ecommerce.model.User;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +29,34 @@ public class UserMapper {
         dto.setEmail(user.getEmail());
         dto.setFullName(user.getFullName());
         dto.setRole(user.getRole());
+        dto.setCreatedAt(user.getCreatedAt());
+        
+        return dto;
+    }
+
+    /**
+     * Convert User entity to UserProfileDTO (complete profile without password)
+     */
+    public UserProfileDTO toProfileDTO(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        UserProfileDTO dto = new UserProfileDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setRole(user.getRole());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setAddress(user.getAddress());
+        dto.setCity(user.getCity());
+        dto.setCountry(user.getCountry());
+        dto.setPostalCode(user.getPostalCode());
+        dto.setIsActive(user.getIsActive());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+        dto.setLastLogin(user.getLastLogin());
         
         return dto;
     }
@@ -51,6 +81,37 @@ public class UserMapper {
     }
 
     /**
+     * Update User entity from UpdateUserDTO
+     */
+    public void updateUserFromDTO(UpdateUserDTO dto, User user) {
+        if (dto == null || user == null) {
+            return;
+        }
+
+        if (dto.getFullName() != null) {
+            user.setFullName(dto.getFullName());
+        }
+        if (dto.getEmail() != null) {
+            user.setEmail(dto.getEmail());
+        }
+        if (dto.getPhoneNumber() != null) {
+            user.setPhoneNumber(dto.getPhoneNumber());
+        }
+        if (dto.getAddress() != null) {
+            user.setAddress(dto.getAddress());
+        }
+        if (dto.getCity() != null) {
+            user.setCity(dto.getCity());
+        }
+        if (dto.getCountry() != null) {
+            user.setCountry(dto.getCountry());
+        }
+        if (dto.getPostalCode() != null) {
+            user.setPostalCode(dto.getPostalCode());
+        }
+    }
+
+    /**
      * Convert User entity to UserDTO for registration response (without password)
      */
     public UserDTO toRegistrationDTO(User user) {
@@ -72,6 +133,19 @@ public class UserMapper {
         
         return users.stream()
                 .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Convert list of User entities to list of UserProfileDTOs
+     */
+    public List<UserProfileDTO> toProfileDTOList(List<User> users) {
+        if (users == null) {
+            return null;
+        }
+        
+        return users.stream()
+                .map(this::toProfileDTO)
                 .collect(Collectors.toList());
     }
 
