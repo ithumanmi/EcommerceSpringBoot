@@ -4,9 +4,12 @@ import com.example.ecommerce.dto.AddToCartDTO;
 import com.example.ecommerce.dto.CartDTO;
 import com.example.ecommerce.dto.CartItemDTO;
 import com.example.ecommerce.dto.UpdateCartItemDTO;
+import com.example.ecommerce.exception.CartItemAccessDeniedException;
+import com.example.ecommerce.exception.CartItemNotFoundException;
 import com.example.ecommerce.exception.CartNotFoundException;
 import com.example.ecommerce.exception.InsufficientStockException;
 import com.example.ecommerce.exception.ProductNotFoundException;
+import com.example.ecommerce.exception.ProductNotAvailableException;
 import com.example.ecommerce.model.Cart;
 import com.example.ecommerce.model.CartItem;
 import com.example.ecommerce.model.Product;
@@ -14,26 +17,30 @@ import com.example.ecommerce.repository.CartItemRepository;
 import com.example.ecommerce.repository.CartRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class CartServiceImpl implements CartService {
-    @Autowired
-    private CartRepository cartRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
+    public CartServiceImpl(
+            CartRepository cartRepository,
+            CartItemRepository cartItemRepository,
+            ProductRepository productRepository
+    ) {
+        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.productRepository = productRepository;
+    }
 
     @Override
     public List<Cart> getAllCarts() {
@@ -41,7 +48,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart getCartById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull Cart getCartById(@NonNull Long id) {
         return cartRepository.findById(id)
                 .orElseThrow(() -> new CartNotFoundException(id));
     }
@@ -69,14 +77,15 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public CartItem addToCart(Long userId, AddToCartDTO addToCartDTO) {
         Cart cart = getOrCreateCart(userId);
         
         Product product = productRepository.findById(addToCartDTO.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException(addToCartDTO.getProductId()));
 
-        if (!product.getIsActive()) {
-            throw new RuntimeException("Product is not available");
+        if (!Boolean.TRUE.equals(product.getIsActive())) {
+            throw new ProductNotAvailableException("Product is not available");
         }
 
         if (product.getStock() < addToCartDTO.getQuantity()) {
@@ -117,14 +126,15 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartItem updateCartItem(Long userId, Long cartItemId, UpdateCartItemDTO updateCartItemDTO) {
+    @SuppressWarnings("null")
+    public CartItem updateCartItem(Long userId, @NonNull Long cartItemId, UpdateCartItemDTO updateCartItemDTO) {
         Cart cart = getCartByUserId(userId);
         
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new CartItemNotFoundException(cartItemId));
 
         if (!cartItem.getCartId().equals(cart.getId())) {
-            throw new RuntimeException("Cart item does not belong to user's cart");
+            throw new CartItemAccessDeniedException("Cart item does not belong to user's cart");
         }
 
         Product product = productRepository.findById(cartItem.getProductId())
@@ -144,14 +154,14 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void removeFromCart(Long userId, Long cartItemId) {
+    public void removeFromCart(Long userId, @NonNull Long cartItemId) {
         Cart cart = getCartByUserId(userId);
         
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new CartItemNotFoundException(cartItemId));
 
         if (!cartItem.getCartId().equals(cart.getId())) {
-            throw new RuntimeException("Cart item does not belong to user's cart");
+            throw new CartItemAccessDeniedException("Cart item does not belong to user's cart");
         }
 
         cartItemRepository.delete(cartItem);
@@ -164,6 +174,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public void syncCartPrices(Long userId) {
         Cart cart = getCartByUserId(userId);
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
@@ -204,7 +215,7 @@ public class CartServiceImpl implements CartService {
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
         List<CartItemDTO> itemDTOs = items.stream()
                 .map(this::convertItemToDTO)
-                .collect(Collectors.toList());
+                .toList();
 
         dto.setCartItems(itemDTOs);
         dto.setTotalItems(items.size());

@@ -7,16 +7,17 @@ import com.example.ecommerce.model.CustomerAddress;
 import com.example.ecommerce.model.CustomerPreference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
 public interface CustomerService {
     List<CustomerAddress> getCustomerAddresses(Long userId);
-    CustomerAddress getCustomerAddressById(Long addressId);
+    @NonNull CustomerAddress getCustomerAddressById(@NonNull Long addressId);
     CustomerAddress addCustomerAddress(Long userId, CustomerAddressDTO addressDTO);
-    CustomerAddress updateCustomerAddress(Long userId, Long addressId, CustomerAddressDTO addressDTO);
-    void deleteCustomerAddress(Long userId, Long addressId);
-    void setDefaultAddress(Long userId, Long addressId);
+    CustomerAddress updateCustomerAddress(Long userId, @NonNull Long addressId, CustomerAddressDTO addressDTO);
+    void deleteCustomerAddress(Long userId, @NonNull Long addressId);
+    void setDefaultAddress(Long userId, @NonNull Long addressId);
     CustomerAddress getDefaultAddress(Long userId);
     
     CustomerPreference getCustomerPreferences(Long userId);

@@ -1,12 +1,11 @@
 package com.example.ecommerce.service.impl;
-
 import com.example.ecommerce.dto.ActivityLogDTO;
 import com.example.ecommerce.model.ActivityLog;
 import com.example.ecommerce.repository.ActivityLogRepository;
 import com.example.ecommerce.service.ActivityLogService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+    import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,20 +15,23 @@ import java.util.List;
 @Service
 @Transactional
 public class ActivityLogServiceImpl implements ActivityLogService {
-    @Autowired
-    private ActivityLogRepository activityLogRepository;
+    private final ActivityLogRepository activityLogRepository;
+
+    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository) {
+        this.activityLogRepository = activityLogRepository;
+    }
 
     @Override
-    public ActivityLog logActivity(Long userId, String username, String action, String entityType, Long entityId, String description, String ipAddress, String userAgent) {
+    public ActivityLog logActivity(ActivityLogDTO logDTO) {
         ActivityLog log = new ActivityLog();
-        log.setUserId(userId);
-        log.setUsername(username);
-        log.setAction(action);
-        log.setEntityType(entityType);
-        log.setEntityId(entityId);
-        log.setDescription(description);
-        log.setIpAddress(ipAddress);
-        log.setUserAgent(userAgent);
+        log.setUserId(logDTO.getUserId());
+        log.setUsername(logDTO.getUsername());
+        log.setAction(logDTO.getAction());
+        log.setEntityType(logDTO.getEntityType());
+        log.setEntityId(logDTO.getEntityId());
+        log.setDescription(logDTO.getDescription());
+        log.setIpAddress(logDTO.getIpAddress());
+        log.setUserAgent(logDTO.getUserAgent());
         return activityLogRepository.save(log);
     }
 
@@ -39,7 +41,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public ActivityLog getLogById(Long id) {
+    public ActivityLog getLogById(@NonNull Long id) {
         return activityLogRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Activity log not found with ID: " + id));
     }
@@ -75,7 +77,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public Page<ActivityLog> getAllLogsPaginated(Pageable pageable) {
+    public Page<ActivityLog> getAllLogsPaginated(@NonNull Pageable pageable) {
         return activityLogRepository.findAll(pageable);
     }
 
@@ -83,7 +85,9 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     public void clearOldLogs(int daysToKeep) {
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysToKeep);
         List<ActivityLog> oldLogs = activityLogRepository.findByDateRange(LocalDateTime.MIN, cutoffDate);
-        activityLogRepository.deleteAll(oldLogs);
+        if (oldLogs != null && !oldLogs.isEmpty()) {
+            activityLogRepository.deleteAll(oldLogs);
+        }
     }
 }
 

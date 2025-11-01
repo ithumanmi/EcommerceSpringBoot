@@ -3,15 +3,18 @@ package com.example.ecommerce.service.impl;
 import com.example.ecommerce.model.OrderItem;
 import com.example.ecommerce.repository.OrderItemRepository;
 import com.example.ecommerce.service.OrderItemService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
+
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository) {
+        this.orderItemRepository = orderItemRepository;
+    }
 
     @Override
     public List<OrderItem> getAllOrderItems() {
@@ -19,12 +22,13 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem getOrderItemById(Long id) {
+    public OrderItem getOrderItemById(@NonNull Long id) {
         return orderItemRepository.findById(id).orElse(null);
     }
 
     @Override
-    public OrderItem createOrderItem(OrderItem orderItem) {
+    @SuppressWarnings("null")
+    public @NonNull OrderItem createOrderItem(OrderItem orderItem) {
         return orderItemRepository.save(orderItem);
     }
 } 

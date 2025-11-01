@@ -10,28 +10,33 @@ import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private UserMapper userMapper;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private static final String ROLE_PREFIX = "ROLE_";
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(
+            UserRepository userRepository,
+            UserMapper userMapper,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     // Basic CRUD operations
     @Override
@@ -40,7 +45,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull User getUserById(@NonNull Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
@@ -69,7 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(Long id, UpdateUserDTO updateUserDTO) {
+    public @NonNull User updateUser(@NonNull Long id, UpdateUserDTO updateUserDTO) {
         User existingUser = getUserById(id);
         
         // Check if email is being changed and if new email already exists
@@ -86,9 +92,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
-        User user = getUserById(id);
-        userRepository.delete(user);
+    public void deleteUser(@NonNull Long id) {
+        userRepository.delete(getUserById(id));
     }
 
     // User search and query
@@ -116,26 +121,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> getAllUsersPaginated(Pageable pageable) {
+    public Page<User> getAllUsersPaginated(@NonNull Pageable pageable) {
         return userRepository.findAll(pageable);
     }
 
     // User profile management
     @Override
-    public UserProfileDTO getUserProfile(Long id) {
+    public UserProfileDTO getUserProfile(@NonNull Long id) {
         User user = getUserById(id);
         return userMapper.toProfileDTO(user);
     }
 
     @Override
-    public UserProfileDTO updateUserProfile(Long id, UpdateUserDTO updateUserDTO) {
+    public UserProfileDTO updateUserProfile(@NonNull Long id, UpdateUserDTO updateUserDTO) {
         User updatedUser = updateUser(id, updateUserDTO);
         return userMapper.toProfileDTO(updatedUser);
     }
 
     // Password management
     @Override
-    public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO) {
+    public void changePassword(@NonNull Long userId, ChangePasswordDTO changePasswordDTO) {
         User user = getUserById(userId);
         
         // Verify current password
@@ -155,14 +160,14 @@ public class UserServiceImpl implements UserService {
 
     // User activation/deactivation
     @Override
-    public void activateUser(Long id) {
+    public void activateUser(@NonNull Long id) {
         User user = getUserById(id);
         user.setIsActive(true);
         userRepository.save(user);
     }
 
     @Override
-    public void deactivateUser(Long id) {
+    public void deactivateUser(@NonNull Long id) {
         User user = getUserById(id);
         user.setIsActive(false);
         userRepository.save(user);
@@ -170,11 +175,11 @@ public class UserServiceImpl implements UserService {
 
     // Role management
     @Override
-    public void updateUserRole(Long id, String role) {
+    public void updateUserRole(@NonNull Long id, String role) {
         User user = getUserById(id);
         // Ensure role starts with ROLE_ prefix
-        if (!role.startsWith("ROLE_")) {
-            role = "ROLE_" + role;
+        if (!role.startsWith(ROLE_PREFIX)) {
+            role = ROLE_PREFIX + role;
         }
         user.setRole(role);
         userRepository.save(user);
@@ -183,8 +188,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getUsersByRole(String role) {
         // Ensure role starts with ROLE_ prefix
-        if (!role.startsWith("ROLE_")) {
-            role = "ROLE_" + role;
+        if (!role.startsWith(ROLE_PREFIX)) {
+            role = ROLE_PREFIX + role;
         }
         return userRepository.findByRole(role);
     }

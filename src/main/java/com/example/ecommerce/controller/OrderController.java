@@ -8,7 +8,6 @@ import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.OrderService;
 import com.example.ecommerce.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,11 +27,13 @@ import java.util.Map;
 @RequestMapping("/api/orders")
 @CrossOrigin(origins = "*")
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
+    public OrderController(OrderService orderService, UserService userService) {
+        this.orderService = orderService;
+        this.userService = userService;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -125,7 +126,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable Long id, Authentication authentication) {
         Order order = orderService.getOrderById(id);
         String username = authentication.getName();
         User user = userService.findByUsername(username);
@@ -135,27 +136,27 @@ public class OrderController {
         }
         
         orderService.cancelOrder(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Order cancelled successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Order cancelled successfully"));
     }
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> updateOrderStatus(
+    public ResponseEntity<ApiResponse<Void>> updateOrderStatus(
             @PathVariable Long id,
             @RequestParam String status
     ) {
         orderService.updateOrderStatus(id, status);
-        return ResponseEntity.ok(new ApiResponse(true, "Order status updated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Order status updated successfully"));
     }
 
     @PutMapping("/{id}/payment-status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> updatePaymentStatus(
+    public ResponseEntity<ApiResponse<Void>> updatePaymentStatus(
             @PathVariable Long id,
             @RequestParam String paymentStatus
     ) {
         orderService.updatePaymentStatus(id, paymentStatus);
-        return ResponseEntity.ok(new ApiResponse(true, "Payment status updated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Payment status updated successfully"));
     }
 
     @GetMapping("/status/{status}")

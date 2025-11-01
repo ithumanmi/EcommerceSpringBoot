@@ -1,10 +1,12 @@
 package com.example.ecommerce.service.impl;
 
 import com.example.ecommerce.dto.SystemSettingDTO;
+import com.example.ecommerce.exception.SystemSettingNotEditableException;
+import com.example.ecommerce.exception.SystemSettingNotFoundException;
 import com.example.ecommerce.model.SystemSetting;
 import com.example.ecommerce.repository.SystemSettingRepository;
 import com.example.ecommerce.service.SystemSettingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +15,11 @@ import java.util.List;
 @Service
 @Transactional
 public class SystemSettingServiceImpl implements SystemSettingService {
-    @Autowired
-    private SystemSettingRepository systemSettingRepository;
+    private final SystemSettingRepository systemSettingRepository;
+
+    public SystemSettingServiceImpl(SystemSettingRepository systemSettingRepository) {
+        this.systemSettingRepository = systemSettingRepository;
+    }
 
     @Override
     public List<SystemSetting> getAllSettings() {
@@ -22,15 +27,16 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     }
 
     @Override
-    public SystemSetting getSettingById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull SystemSetting getSettingById(@NonNull Long id) {
         return systemSettingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Setting not found with ID: " + id));
+                .orElseThrow(() -> new SystemSettingNotFoundException(id));
     }
 
     @Override
     public SystemSetting getSettingByKey(String key) {
         return systemSettingRepository.findBySettingKey(key)
-                .orElseThrow(() -> new RuntimeException("Setting not found with key: " + key));
+                .orElseThrow(() -> new SystemSettingNotFoundException("Setting not found with key: " + key));
     }
 
     @Override
@@ -52,11 +58,11 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     }
 
     @Override
-    public SystemSetting updateSetting(Long id, SystemSettingDTO settingDTO) {
+    public @NonNull SystemSetting updateSetting(@NonNull Long id, SystemSettingDTO settingDTO) {
         SystemSetting setting = getSettingById(id);
         
-        if (!setting.getIsEditable()) {
-            throw new RuntimeException("This setting is not editable");
+        if (!Boolean.TRUE.equals(setting.getIsEditable())) {
+            throw new SystemSettingNotEditableException("This setting is not editable");
         }
         
         if (settingDTO.getSettingValue() != null) setting.setSettingValue(settingDTO.getSettingValue());
@@ -70,8 +76,8 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     public SystemSetting updateSettingByKey(String key, String value) {
         SystemSetting setting = getSettingByKey(key);
         
-        if (!setting.getIsEditable()) {
-            throw new RuntimeException("This setting is not editable");
+        if (!Boolean.TRUE.equals(setting.getIsEditable())) {
+            throw new SystemSettingNotEditableException("This setting is not editable");
         }
         
         setting.setSettingValue(value);
@@ -79,11 +85,11 @@ public class SystemSettingServiceImpl implements SystemSettingService {
     }
 
     @Override
-    public void deleteSetting(Long id) {
+    public void deleteSetting(@NonNull Long id) {
         SystemSetting setting = getSettingById(id);
         
-        if (!setting.getIsEditable()) {
-            throw new RuntimeException("This setting cannot be deleted");
+        if (!Boolean.TRUE.equals(setting.getIsEditable())) {
+            throw new SystemSettingNotEditableException("This setting cannot be deleted");
         }
         
         systemSettingRepository.delete(setting);

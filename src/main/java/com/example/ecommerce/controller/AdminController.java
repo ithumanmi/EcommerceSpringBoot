@@ -97,9 +97,9 @@ public class AdminController {
     }
 
     @DeleteMapping("/settings/{id}")
-    public ResponseEntity<ApiResponse> deleteSetting(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSetting(@PathVariable Long id) {
         systemSettingService.deleteSetting(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Setting deleted successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Setting deleted successfully"));
     }
 
     @GetMapping("/activity-logs")
@@ -158,9 +158,9 @@ public class AdminController {
     }
 
     @DeleteMapping("/activity-logs/cleanup")
-    public ResponseEntity<ApiResponse> cleanupOldLogs(@RequestParam(defaultValue = "90") int daysToKeep) {
+    public ResponseEntity<ApiResponse<Void>> cleanupOldLogs(@RequestParam(defaultValue = "90") int daysToKeep) {
         activityLogService.clearOldLogs(daysToKeep);
-        return ResponseEntity.ok(new ApiResponse(true, "Old activity logs cleared successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Old activity logs cleared successfully"));
     }
 }
 

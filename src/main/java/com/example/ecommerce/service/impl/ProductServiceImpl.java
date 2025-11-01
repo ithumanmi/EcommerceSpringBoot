@@ -6,9 +6,9 @@ import com.example.ecommerce.exception.ProductNotFoundException;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +18,11 @@ import java.util.List;
 @Service
 @Transactional
 public class ProductServiceImpl implements ProductService {
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+
+    public ProductServiceImpl(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @Override
     public List<Product> getAllProducts() {
@@ -27,7 +30,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProductById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull Product getProductById(@NonNull Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
@@ -53,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Long id, UpdateProductDTO updateProductDTO) {
+    public @NonNull Product updateProduct(@NonNull Long id, UpdateProductDTO updateProductDTO) {
         Product product = getProductById(id);
         
         if (updateProductDTO.getName() != null) {
@@ -88,9 +92,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(Long id) {
-        Product product = getProductById(id);
-        productRepository.delete(product);
+    public void deleteProduct(@NonNull Long id) {
+        productRepository.delete(getProductById(id));
     }
 
     @Override
@@ -130,19 +133,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getAllProductsPaginated(Pageable pageable) {
+    public Page<Product> getAllProductsPaginated(@NonNull Pageable pageable) {
         return productRepository.findAll(pageable);
     }
 
     @Override
-    public void updateStock(Long productId, Integer quantity) {
+    public void updateStock(@NonNull Long productId, Integer quantity) {
         Product product = getProductById(productId);
         product.setStock(quantity);
         productRepository.save(product);
     }
 
     @Override
-    public void decreaseStock(Long productId, Integer quantity) {
+    public void decreaseStock(@NonNull Long productId, Integer quantity) {
         Product product = getProductById(productId);
         if (product.getStock() < quantity) {
             throw new InsufficientStockException(product.getName(), quantity, product.getStock());
@@ -152,42 +155,42 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void increaseStock(Long productId, Integer quantity) {
+    public void increaseStock(@NonNull Long productId, Integer quantity) {
         Product product = getProductById(productId);
         product.setStock(product.getStock() + quantity);
         productRepository.save(product);
     }
 
     @Override
-    public void activateProduct(Long productId) {
+    public void activateProduct(@NonNull Long productId) {
         Product product = getProductById(productId);
         product.setIsActive(true);
         productRepository.save(product);
     }
 
     @Override
-    public void deactivateProduct(Long productId) {
+    public void deactivateProduct(@NonNull Long productId) {
         Product product = getProductById(productId);
         product.setIsActive(false);
         productRepository.save(product);
     }
 
     @Override
-    public void toggleFeatured(Long productId) {
+    public void toggleFeatured(@NonNull Long productId) {
         Product product = getProductById(productId);
         product.setIsFeatured(!product.getIsFeatured());
         productRepository.save(product);
     }
 
     @Override
-    public void incrementViewCount(Long productId) {
+    public void incrementViewCount(@NonNull Long productId) {
         Product product = getProductById(productId);
         product.setViewCount(product.getViewCount() + 1);
         productRepository.save(product);
     }
 
     @Override
-    public void incrementSoldCount(Long productId, Integer quantity) {
+    public void incrementSoldCount(@NonNull Long productId, Integer quantity) {
         Product product = getProductById(productId);
         product.setSoldCount(product.getSoldCount() + quantity);
         productRepository.save(product);

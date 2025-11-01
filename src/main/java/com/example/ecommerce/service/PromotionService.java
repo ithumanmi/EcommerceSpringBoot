@@ -4,21 +4,22 @@ import com.example.ecommerce.dto.PromotionDTO;
 import com.example.ecommerce.model.Promotion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
 public interface PromotionService {
     List<Promotion> getAllPromotions();
-    Promotion getPromotionById(Long id);
+    @NonNull Promotion getPromotionById(@NonNull Long id);
     Promotion createPromotion(PromotionDTO promotionDTO);
-    Promotion updatePromotion(Long id, PromotionDTO promotionDTO);
-    void deletePromotion(Long id);
+    @NonNull Promotion updatePromotion(@NonNull Long id, PromotionDTO promotionDTO);
+    void deletePromotion(@NonNull Long id);
     
     List<Promotion> getActivePromotions();
     List<Promotion> getPromotionsByType(String promotionType);
-    Page<Promotion> getAllPromotionsPaginated(Pageable pageable);
+    Page<Promotion> getAllPromotionsPaginated(@NonNull Pageable pageable);
     
-    void activatePromotion(Long id);
-    void deactivatePromotion(Long id);
+    void activatePromotion(@NonNull Long id);
+    void deactivatePromotion(@NonNull Long id);
 }
 

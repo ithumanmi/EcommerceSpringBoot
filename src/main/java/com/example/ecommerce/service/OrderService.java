@@ -5,18 +5,19 @@ import com.example.ecommerce.dto.OrderDTO;
 import com.example.ecommerce.model.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderService {
     List<Order> getAllOrders();
-    Order getOrderById(Long id);
-    OrderDTO getOrderDTOById(Long id);
+    @NonNull Order getOrderById(@NonNull Long id);
+    @NonNull OrderDTO getOrderDTOById(@NonNull Long id);
     Order createOrder(CreateOrderDTO createOrderDTO, Long userId);
-    void cancelOrder(Long id);
-    void updateOrderStatus(Long id, String status);
-    void updatePaymentStatus(Long id, String paymentStatus);
+    void cancelOrder(@NonNull Long id);
+    void updateOrderStatus(@NonNull Long id, String status);
+    void updatePaymentStatus(@NonNull Long id, String paymentStatus);
     
     List<Order> getOrdersByUser(Long userId);
     List<Order> getOrdersByStatus(String status);
@@ -25,7 +26,7 @@ public interface OrderService {
     List<Order> getUserOrdersByStatus(Long userId, String status);
     List<Order> getRecentOrders();
     
-    Page<Order> getAllOrdersPaginated(Pageable pageable);
+    Page<Order> getAllOrdersPaginated(@NonNull Pageable pageable);
     Page<Order> getUserOrdersPaginated(Long userId, Pageable pageable);
     
     Order findByOrderNumber(String orderNumber);

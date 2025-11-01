@@ -6,7 +6,6 @@ import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.model.Category;
 import com.example.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +16,22 @@ import java.util.List;
 @RequestMapping("/api/categories")
 @CrossOrigin(origins = "*")
 public class CategoryController {
-    @Autowired
-    private CategoryService categoryService;
-    
-    @Autowired
-    private CategoryMapper categoryMapper;
+    private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
+
+    public CategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
+        this.categoryService = categoryService;
+        this.categoryMapper = categoryMapper;
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getAllCategories() {
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         List<Category> categories = categoryService.getAllCategories();
         List<CategoryDTO> categoryDTOs = categoryMapper.toDTOList(categories);
-        return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categoryDTOs));
+        if (categoryDTOs == null) {
+            categoryDTOs = new java.util.ArrayList<>();
+        }
+        return ResponseEntity.ok(categoryDTOs);
     }
 
     @GetMapping("/{id}")

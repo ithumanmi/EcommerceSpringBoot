@@ -10,11 +10,9 @@ import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.CustomerService;
 import com.example.ecommerce.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;    
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -26,11 +24,13 @@ import java.util.List;
 @RequestMapping("/api/customers")
 @CrossOrigin(origins = "*")
 public class CustomerController {
-    @Autowired
-    private CustomerService customerService;
+    private final CustomerService customerService;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
+    public CustomerController(CustomerService customerService, UserService userService) {
+        this.customerService = customerService;
+        this.userService = userService;
+    }
 
     @GetMapping("/my-addresses")
     public ResponseEntity<List<CustomerAddress>> getMyAddresses(Authentication authentication) {
@@ -80,25 +80,25 @@ public class CustomerController {
     }
 
     @DeleteMapping("/my-addresses/{id}")
-    public ResponseEntity<ApiResponse> deleteMyAddress(
+    public ResponseEntity<ApiResponse<Void>> deleteMyAddress(
             @PathVariable Long id,
             Authentication authentication
     ) {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         customerService.deleteCustomerAddress(user.getId(), id);
-        return ResponseEntity.ok(new ApiResponse(true, "Address deleted successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Address deleted successfully"));
     }
 
     @PutMapping("/my-addresses/{id}/set-default")
-    public ResponseEntity<ApiResponse> setDefaultAddress(
+    public ResponseEntity<ApiResponse<Void>> setDefaultAddress(
             @PathVariable Long id,
             Authentication authentication
     ) {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         customerService.setDefaultAddress(user.getId(), id);
-        return ResponseEntity.ok(new ApiResponse(true, "Default address set successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Default address set successfully"));
     }
 
     @GetMapping("/my-addresses/default")

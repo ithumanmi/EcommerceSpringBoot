@@ -7,7 +7,6 @@ import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.service.ProductService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +24,13 @@ import java.util.Map;
 @RequestMapping("/api/products")
 @CrossOrigin(origins = "*")
 public class ProductController {
-    @Autowired
-    private ProductService productService;
-    
-    @Autowired
-    private ProductMapper productMapper;
+    private final ProductService productService;
+    private final ProductMapper productMapper;
+
+    public ProductController(ProductService productService, ProductMapper productMapper) {
+        this.productService = productService;
+        this.productMapper = productMapper;
+    }
 
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
@@ -150,60 +151,60 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Product deleted successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Product deleted successfully"));
     }
 
     @PutMapping("/{id}/stock")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> updateStock(
+    public ResponseEntity<ApiResponse<Void>> updateStock(
             @PathVariable Long id,
             @RequestParam Integer quantity
     ) {
         productService.updateStock(id, quantity);
-        return ResponseEntity.ok(new ApiResponse(true, "Stock updated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Stock updated successfully"));
     }
 
     @PutMapping("/{id}/stock/increase")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> increaseStock(
+    public ResponseEntity<ApiResponse<Void>> increaseStock(
             @PathVariable Long id,
             @RequestParam Integer quantity
     ) {
         productService.increaseStock(id, quantity);
-        return ResponseEntity.ok(new ApiResponse(true, "Stock increased successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Stock increased successfully"));
     }
 
     @PutMapping("/{id}/stock/decrease")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> decreaseStock(
+    public ResponseEntity<ApiResponse<Void>> decreaseStock(
             @PathVariable Long id,
             @RequestParam Integer quantity
     ) {
         productService.decreaseStock(id, quantity);
-        return ResponseEntity.ok(new ApiResponse(true, "Stock decreased successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Stock decreased successfully"));
     }
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> activateProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activateProduct(@PathVariable Long id) {
         productService.activateProduct(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Product activated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Product activated successfully"));
     }
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deactivateProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivateProduct(@PathVariable Long id) {
         productService.deactivateProduct(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Product deactivated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Product deactivated successfully"));
     }
 
     @PutMapping("/{id}/toggle-featured")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> toggleFeatured(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> toggleFeatured(@PathVariable Long id) {
         productService.toggleFeatured(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Featured status toggled successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Featured status toggled successfully"));
     }
 
     @GetMapping("/statistics")

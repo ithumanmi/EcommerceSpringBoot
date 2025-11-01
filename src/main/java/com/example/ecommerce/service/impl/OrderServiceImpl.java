@@ -10,15 +10,15 @@ import com.example.ecommerce.exception.ProductNotFoundException;
 import com.example.ecommerce.model.Order;
 import com.example.ecommerce.model.OrderItem;
 import com.example.ecommerce.model.Product;
+import com.example.ecommerce.exception.OrderCancellationException;
 import com.example.ecommerce.repository.OrderRepository;
 import com.example.ecommerce.repository.ProductRepository;
-import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.service.OrderService;
 import com.example.ecommerce.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,22 +27,24 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class OrderServiceImpl implements OrderService {
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final ProductService productService;
 
-    @Autowired
-    private ProductRepository productRepository;
+    public OrderServiceImpl(
+            OrderRepository orderRepository,
+            ProductRepository productRepository,
+            ProductService productService
+    ) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.productService = productService;
+    }
 
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Override
     public List<Order> getAllOrders() {
@@ -50,18 +52,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getOrderById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull Order getOrderById(@NonNull Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     @Override
-    public OrderDTO getOrderDTOById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull OrderDTO getOrderDTOById(@NonNull Long id) {
         Order order = getOrderById(id);
         return convertToDTO(order);
     }
 
     @Override
+    @SuppressWarnings("null")
     public Order createOrder(CreateOrderDTO createOrderDTO, Long userId) {
         Order order = new Order();
         order.setUserId(userId);
@@ -102,8 +107,10 @@ public class OrderServiceImpl implements OrderService {
             subtotal = subtotal.add(itemSubtotal);
             orderItems.add(orderItem);
             
-            productService.decreaseStock(product.getId(), itemDTO.getQuantity());
-            productService.incrementSoldCount(product.getId(), itemDTO.getQuantity());
+            @SuppressWarnings("null")
+            Long productId = product.getId();
+            productService.decreaseStock(productId, itemDTO.getQuantity());
+            productService.incrementSoldCount(productId, itemDTO.getQuantity());
         }
         
         order.setSubtotal(subtotal);
@@ -128,18 +135,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancelOrder(Long id) {
+    public void cancelOrder(@NonNull Long id) {
         Order order = getOrderById(id);
         if ("CANCELLED".equals(order.getStatus())) {
-            throw new RuntimeException("Order is already cancelled");
+            throw new OrderCancellationException("Order is already cancelled");
         }
         if ("COMPLETED".equals(order.getStatus()) || "DELIVERED".equals(order.getStatus())) {
-            throw new RuntimeException("Cannot cancel completed or delivered order");
+            throw new OrderCancellationException("Cannot cancel completed or delivered order");
         }
         
         for (OrderItem item : order.getItems()) {
-            productService.increaseStock(item.getProductId(), item.getQuantity());
-            productService.incrementSoldCount(item.getProductId(), -item.getQuantity());
+            @SuppressWarnings("null")
+            Long productId = item.getProductId();
+            productService.increaseStock(productId, item.getQuantity());
+            productService.incrementSoldCount(productId, -item.getQuantity());
         }
         
         order.setStatus("CANCELLED");
@@ -148,7 +157,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrderStatus(Long id, String status) {
+    public void updateOrderStatus(@NonNull Long id, String status) {
         Order order = getOrderById(id);
         order.setStatus(status);
         
@@ -160,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updatePaymentStatus(Long id, String paymentStatus) {
+    public void updatePaymentStatus(@NonNull Long id, String paymentStatus) {
         Order order = getOrderById(id);
         order.setPaymentStatus(paymentStatus);
         orderRepository.save(order);
@@ -197,11 +206,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> getAllOrdersPaginated(Pageable pageable) {
+    public Page<Order> getAllOrdersPaginated(@NonNull Pageable pageable) {
         return orderRepository.findAll(pageable);
     }
 
     @Override
+    @SuppressWarnings("null")
     public Page<Order> getUserOrdersPaginated(Long userId, Pageable pageable) {
         List<Order> userOrders = orderRepository.findByUserId(userId);
         int start = (int) pageable.getOffset();
@@ -262,7 +272,7 @@ public class OrderServiceImpl implements OrderService {
         dto.setCompletedAt(order.getCompletedAt());
         
         if (order.getItems() != null) {
-            dto.setItems(order.getItems().stream().map(this::convertItemToDTO).collect(Collectors.toList()));
+            dto.setItems(order.getItems().stream().map(this::convertItemToDTO).toList());
         }
         
         return dto;

@@ -298,11 +298,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 1. User API
 - **Lấy tất cả user:**
   ```sh
-  curl -X GET http://localhost:8080/api/users
+  curl -X GET http://localhost:8081/api/users
   ```
 - **Tạo user mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/users \
+  curl -X POST http://localhost:8081/api/users \
     -H "Content-Type: application/json" \
     -d '{
       "username": "testuser",
@@ -316,11 +316,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 2. Product API
 - **Lấy tất cả sản phẩm:**
   ```sh
-  curl -X GET http://localhost:8080/api/products
+  curl -X GET http://localhost:8081/api/products
   ```
 - **Tạo sản phẩm mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/products \
+  curl -X POST http://localhost:8081/api/products \
     -H "Content-Type: application/json" \
     -d '{
       "name": "Sản phẩm test",
@@ -334,11 +334,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 3. Category API
 - **Lấy tất cả danh mục:**
   ```sh
-  curl -X GET http://localhost:8080/api/categories
+  curl -X GET http://localhost:8081/api/categories
   ```
 - **Tạo danh mục mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/categories \
+  curl -X POST http://localhost:8081/api/categories \
     -H "Content-Type: application/json" \
     -d '{
       "name": "Đồ uống",
@@ -349,11 +349,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 4. Cart API
 - **Lấy giỏ hàng của user:**
   ```sh
-  curl -X GET http://localhost:8080/api/carts/user/{userId}
+  curl -X GET http://localhost:8081/api/carts/user/{userId}
   ```
 - **Thêm sản phẩm vào giỏ:**
   ```sh
-  curl -X POST http://localhost:8080/api/carts/items \
+  curl -X POST http://localhost:8081/api/carts/items \
     -H "Content-Type: application/json" \
     -d '{
       "cartId": 1,
@@ -365,11 +365,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 5. Order API
 - **Lấy tất cả đơn hàng:**
   ```sh
-  curl -X GET http://localhost:8080/api/orders
+  curl -X GET http://localhost:8081/api/orders
   ```
 - **Tạo đơn hàng mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/orders \
+  curl -X POST http://localhost:8081/api/orders \
     -H "Content-Type: application/json" \
     -d '{
       "userId": 1,
@@ -383,11 +383,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 6. Payment API
 - **Lấy tất cả thanh toán:**
   ```sh
-  curl -X GET http://localhost:8080/api/payments
+  curl -X GET http://localhost:8081/api/payments
   ```
 - **Tạo thanh toán mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/payments \
+  curl -X POST http://localhost:8081/api/payments \
     -H "Content-Type: application/json" \
     -d '{
       "orderId": 1,
@@ -400,11 +400,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 7. Shipping API
 - **Lấy tất cả vận chuyển:**
   ```sh
-  curl -X GET http://localhost:8080/api/shippings
+  curl -X GET http://localhost:8081/api/shippings
   ```
 - **Tạo vận chuyển mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/shippings \
+  curl -X POST http://localhost:8081/api/shippings \
     -H "Content-Type: application/json" \
     -d '{
       "orderId": 1,
@@ -416,11 +416,11 @@ Bạn có thể test các API của hệ thống bằng Postman, curl hoặc b�
 ### 8. Coupon API
 - **Lấy tất cả mã giảm giá:**
   ```sh
-  curl -X GET http://localhost:8080/api/coupons
+  curl -X GET http://localhost:8081/api/coupons
   ```
 - **Tạo mã giảm giá mới:**
   ```sh
-  curl -X POST http://localhost:8080/api/coupons \
+  curl -X POST http://localhost:8081/api/coupons \
     -H "Content-Type: application/json" \
     -d '{
       "code": "SALE2025",

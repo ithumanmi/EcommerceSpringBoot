@@ -3,15 +3,18 @@ package com.example.ecommerce.service.impl;
 import com.example.ecommerce.model.Shipping;
 import com.example.ecommerce.repository.ShippingRepository;
 import com.example.ecommerce.service.ShippingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class ShippingServiceImpl implements ShippingService {
-    @Autowired
-    private ShippingRepository shippingRepository;
+    private final ShippingRepository shippingRepository;
+
+    public ShippingServiceImpl(ShippingRepository shippingRepository) {
+        this.shippingRepository = shippingRepository;
+    }
 
     @Override
     public List<Shipping> getAllShippings() {
@@ -19,12 +22,13 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public Shipping getShippingById(Long id) {
+    public Shipping getShippingById(@NonNull Long id) {
         return shippingRepository.findById(id).orElse(null);
     }
 
     @Override
-    public Shipping createShipping(Shipping shipping) {
+    @SuppressWarnings("null")
+    public @NonNull Shipping createShipping(Shipping shipping) {
         return shippingRepository.save(shipping);
     }
 } 

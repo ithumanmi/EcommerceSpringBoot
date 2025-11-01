@@ -2,7 +2,6 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.model.CartItem;
 import com.example.ecommerce.service.CartItemService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +12,11 @@ import java.util.List;
 @RequestMapping("/api/cart-items")
 @CrossOrigin(origins = "*")
 public class CartItemController {
-    @Autowired
-    private CartItemService cartItemService;
+    private final CartItemService cartItemService;
+
+    public CartItemController(CartItemService cartItemService) {
+        this.cartItemService = cartItemService;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")

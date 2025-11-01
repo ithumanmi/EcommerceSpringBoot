@@ -1,12 +1,13 @@
 package com.example.ecommerce.service.impl;
 
 import com.example.ecommerce.dto.PromotionDTO;
+import com.example.ecommerce.exception.PromotionNotFoundException;
 import com.example.ecommerce.model.Promotion;
 import com.example.ecommerce.repository.PromotionRepository;
 import com.example.ecommerce.service.PromotionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +17,11 @@ import java.util.List;
 @Service
 @Transactional
 public class PromotionServiceImpl implements PromotionService {
-    @Autowired
-    private PromotionRepository promotionRepository;
+    private final PromotionRepository promotionRepository;
+
+    public PromotionServiceImpl(PromotionRepository promotionRepository) {
+        this.promotionRepository = promotionRepository;
+    }
 
     @Override
     public List<Promotion> getAllPromotions() {
@@ -25,9 +29,10 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Promotion getPromotionById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull Promotion getPromotionById(@NonNull Long id) {
         return promotionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Promotion not found with ID: " + id));
+                .orElseThrow(() -> new PromotionNotFoundException(id));
     }
 
     @Override
@@ -49,7 +54,7 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Promotion updatePromotion(Long id, PromotionDTO promotionDTO) {
+    public @NonNull Promotion updatePromotion(@NonNull Long id, PromotionDTO promotionDTO) {
         Promotion promotion = getPromotionById(id);
         
         if (promotionDTO.getName() != null) promotion.setName(promotionDTO.getName());
@@ -68,9 +73,8 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public void deletePromotion(Long id) {
-        Promotion promotion = getPromotionById(id);
-        promotionRepository.delete(promotion);
+    public void deletePromotion(@NonNull Long id) {
+        promotionRepository.delete(getPromotionById(id));
     }
 
     @Override
@@ -84,19 +88,19 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Page<Promotion> getAllPromotionsPaginated(Pageable pageable) {
+    public Page<Promotion> getAllPromotionsPaginated(@NonNull Pageable pageable) {
         return promotionRepository.findAll(pageable);
     }
 
     @Override
-    public void activatePromotion(Long id) {
+    public void activatePromotion(@NonNull Long id) {
         Promotion promotion = getPromotionById(id);
         promotion.setIsActive(true);
         promotionRepository.save(promotion);
     }
 
     @Override
-    public void deactivatePromotion(Long id) {
+    public void deactivatePromotion(@NonNull Long id) {
         Promotion promotion = getPromotionById(id);
         promotion.setIsActive(false);
         promotionRepository.save(promotion);

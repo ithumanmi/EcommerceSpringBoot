@@ -3,36 +3,46 @@ package com.example.ecommerce.service.impl;
 import com.example.ecommerce.dto.CustomerAddressDTO;
 import com.example.ecommerce.dto.CustomerPreferenceDTO;
 import com.example.ecommerce.dto.CustomerStatsDTO;
+import com.example.ecommerce.exception.CustomerAddressAccessDeniedException;
+import com.example.ecommerce.exception.CustomerAddressNotFoundException;
 import com.example.ecommerce.exception.UserNotFoundException;
 import com.example.ecommerce.model.*;
 import com.example.ecommerce.repository.*;
 import com.example.ecommerce.service.CustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
-    @Autowired
-    private CustomerAddressRepository addressRepository;
-    
-    @Autowired
-    private CustomerPreferenceRepository preferenceRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private OrderRepository orderRepository;
+    private static final String ORDER_STATUS_CANCELLED = "CANCELLED";
+    private static final String ORDER_STATUS_PENDING = "PENDING";
+    private static final String ORDER_STATUS_COMPLETED = "COMPLETED";
+
+    private final CustomerAddressRepository addressRepository;
+    private final CustomerPreferenceRepository preferenceRepository;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+
+    public CustomerServiceImpl(
+            CustomerAddressRepository addressRepository,
+            CustomerPreferenceRepository preferenceRepository,
+            UserRepository userRepository,
+            OrderRepository orderRepository
+    ) {
+        this.addressRepository = addressRepository;
+        this.preferenceRepository = preferenceRepository;
+        this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
+    }
 
     @Override
     public List<CustomerAddress> getCustomerAddresses(Long userId) {
@@ -40,14 +50,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerAddress getCustomerAddressById(Long addressId) {
+    @SuppressWarnings("null")
+    public @NonNull CustomerAddress getCustomerAddressById(@NonNull Long addressId) {
         return addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found with ID: " + addressId));
+                .orElseThrow(() -> new CustomerAddressNotFoundException(addressId));
     }
 
     @Override
+    @SuppressWarnings("null")
     public CustomerAddress addCustomerAddress(Long userId, CustomerAddressDTO addressDTO) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         CustomerAddress address = new CustomerAddress();
@@ -61,9 +73,9 @@ public class CustomerServiceImpl implements CustomerService {
         address.setState(addressDTO.getState());
         address.setCountry(addressDTO.getCountry());
         address.setPostalCode(addressDTO.getPostalCode());
-        address.setIsDefault(addressDTO.getIsDefault() != null ? addressDTO.getIsDefault() : false);
+        address.setIsDefault(Boolean.TRUE.equals(addressDTO.getIsDefault()));
 
-        if (address.getIsDefault()) {
+        if (Boolean.TRUE.equals(address.getIsDefault())) {
             addressRepository.clearDefaultAddresses(userId);
         }
 
@@ -71,11 +83,11 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerAddress updateCustomerAddress(Long userId, Long addressId, CustomerAddressDTO addressDTO) {
+    public CustomerAddress updateCustomerAddress(Long userId, @NonNull Long addressId, CustomerAddressDTO addressDTO) {
         CustomerAddress address = getCustomerAddressById(addressId);
         
         if (!address.getUserId().equals(userId)) {
-            throw new RuntimeException("Address does not belong to user");
+            throw new CustomerAddressAccessDeniedException("Address does not belong to user");
         }
 
         if (addressDTO.getAddressLabel() != null) address.setAddressLabel(addressDTO.getAddressLabel());
@@ -97,22 +109,22 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteCustomerAddress(Long userId, Long addressId) {
+    public void deleteCustomerAddress(Long userId, @NonNull Long addressId) {
         CustomerAddress address = getCustomerAddressById(addressId);
         
         if (!address.getUserId().equals(userId)) {
-            throw new RuntimeException("Address does not belong to user");
+            throw new CustomerAddressAccessDeniedException("Address does not belong to user");
         }
 
         addressRepository.delete(address);
     }
 
     @Override
-    public void setDefaultAddress(Long userId, Long addressId) {
+    public void setDefaultAddress(Long userId, @NonNull Long addressId) {
         CustomerAddress address = getCustomerAddressById(addressId);
         
         if (!address.getUserId().equals(userId)) {
-            throw new RuntimeException("Address does not belong to user");
+            throw new CustomerAddressAccessDeniedException("Address does not belong to user");
         }
 
         addressRepository.clearDefaultAddresses(userId);
@@ -127,6 +139,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public CustomerPreference getCustomerPreferences(Long userId) {
         return preferenceRepository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -176,21 +189,21 @@ public class CustomerServiceImpl implements CustomerService {
         stats.setTotalOrders(orders.size());
 
         BigDecimal totalSpent = orders.stream()
-                .filter(o -> !"CANCELLED".equals(o.getStatus()))
+                .filter(o -> !ORDER_STATUS_CANCELLED.equals(o.getStatus()))
                 .map(Order::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         stats.setTotalSpent(totalSpent);
 
         long totalProducts = orders.stream()
-                .filter(o => !"CANCELLED".equals(o.getStatus()))
+                .filter(o -> !ORDER_STATUS_CANCELLED.equals(o.getStatus()))
                 .flatMap(o -> o.getItems().stream())
                 .mapToInt(OrderItem::getQuantity)
                 .sum();
         stats.setTotalProducts((int) totalProducts);
 
-        stats.setPendingOrders((int) orders.stream().filter(o -> "PENDING".equals(o.getStatus())).count());
-        stats.setCompletedOrders((int) orders.stream().filter(o -> "COMPLETED".equals(o.getStatus())).count());
-        stats.setCancelledOrders((int) orders.stream().filter(o -> "CANCELLED".equals(o.getStatus())).count());
+        stats.setPendingOrders((int) orders.stream().filter(o -> ORDER_STATUS_PENDING.equals(o.getStatus())).count());
+        stats.setCompletedOrders((int) orders.stream().filter(o -> ORDER_STATUS_COMPLETED.equals(o.getStatus())).count());
+        stats.setCancelledOrders((int) orders.stream().filter(o -> ORDER_STATUS_CANCELLED.equals(o.getStatus())).count());
 
         orders.stream()
                 .min(Comparator.comparing(Order::getOrderDate))
@@ -204,11 +217,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public List<CustomerStatsDTO> getAllCustomerStats() {
         List<User> customers = userRepository.findByRole("ROLE_USER");
         return customers.stream()
                 .map(user -> getCustomerStats(user.getId()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -225,7 +239,7 @@ public class CustomerServiceImpl implements CustomerService {
         return getAllCustomerStats().stream()
                 .sorted(Comparator.comparing(CustomerStatsDTO::getTotalSpent).reversed())
                 .limit(limit)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -233,7 +247,7 @@ public class CustomerServiceImpl implements CustomerService {
         return getAllCustomerStats().stream()
                 .sorted(Comparator.comparing(CustomerStatsDTO::getTotalOrders).reversed())
                 .limit(limit)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
 

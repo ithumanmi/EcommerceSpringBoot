@@ -10,7 +10,6 @@ import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.CouponService;
 import com.example.ecommerce.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,11 +27,13 @@ import java.util.Map;
 @RequestMapping("/api/coupons")
 @CrossOrigin(origins = "*")
 public class CouponController {
-    @Autowired
-    private CouponService couponService;
+    private final CouponService couponService;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
+    public CouponController(CouponService couponService, UserService userService) {
+        this.couponService = couponService;
+        this.userService = userService;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -101,9 +102,9 @@ public class CouponController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deleteCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCoupon(@PathVariable Long id) {
         couponService.deleteCoupon(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Coupon deleted successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Coupon deleted successfully"));
     }
 
     @PostMapping("/validate")
@@ -123,16 +124,16 @@ public class CouponController {
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> activateCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activateCoupon(@PathVariable Long id) {
         couponService.activateCoupon(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Coupon activated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Coupon activated successfully"));
     }
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deactivateCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivateCoupon(@PathVariable Long id) {
         couponService.deactivateCoupon(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Coupon deactivated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Coupon deactivated successfully"));
     }
 
     @GetMapping("/{id}/usage")

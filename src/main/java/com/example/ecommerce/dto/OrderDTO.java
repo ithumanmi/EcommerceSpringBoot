@@ -29,6 +29,7 @@ public class OrderDTO {
     private LocalDateTime completedAt;
     private List<OrderItemDTO> items;
 
+    // Empty constructor required for JSON serialization/deserialization
     public OrderDTO() {}
 
     public Long getId() { return id; }

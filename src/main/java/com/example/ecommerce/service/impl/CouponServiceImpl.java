@@ -2,16 +2,15 @@ package com.example.ecommerce.service.impl;
 
 import com.example.ecommerce.dto.CouponDTO;
 import com.example.ecommerce.dto.CouponValidationResultDTO;
-import com.example.ecommerce.dto.ValidateCouponDTO;
 import com.example.ecommerce.exception.CouponNotFoundException;
-import com.example.ecommerce.exception.InvalidCouponException;
 import com.example.ecommerce.model.Coupon;
 import com.example.ecommerce.model.CouponUsage;
 import com.example.ecommerce.repository.CouponRepository;
 import com.example.ecommerce.repository.CouponUsageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.ecommerce.service.CouponService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +22,13 @@ import java.util.List;
 @Service
 @Transactional
 public class CouponServiceImpl implements CouponService {
-    @Autowired
-    private CouponRepository couponRepository;
+    private final CouponRepository couponRepository;
+    private final CouponUsageRepository couponUsageRepository;
 
-    @Autowired
-    private CouponUsageRepository couponUsageRepository;
+    public CouponServiceImpl(CouponRepository couponRepository, CouponUsageRepository couponUsageRepository) {
+        this.couponRepository = couponRepository;
+        this.couponUsageRepository = couponUsageRepository;
+    }
 
     @Override
     public List<Coupon> getAllCoupons() {
@@ -35,7 +36,8 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public Coupon getCouponById(Long id) {
+    @SuppressWarnings("null")
+    public @NonNull Coupon getCouponById(@NonNull Long id) {
         return couponRepository.findById(id)
                 .orElseThrow(() -> new CouponNotFoundException(id));
     }
@@ -53,7 +55,7 @@ public class CouponServiceImpl implements CouponService {
         coupon.setExpiryDate(couponDTO.getExpiryDate());
         coupon.setUsageLimit(couponDTO.getUsageLimit());
         coupon.setUsagePerUser(couponDTO.getUsagePerUser());
-        coupon.setIsActive(couponDTO.getIsActive() != null ? couponDTO.getIsActive() : true);
+        coupon.setIsActive(couponDTO.getIsActive() != null ? couponDTO.getIsActive() : Boolean.TRUE);
         coupon.setApplicableTo(couponDTO.getApplicableTo());
         coupon.setApplicableCategoryIds(couponDTO.getApplicableCategoryIds());
         coupon.setApplicableProductIds(couponDTO.getApplicableProductIds());
@@ -63,7 +65,8 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public Coupon updateCoupon(Long id, CouponDTO couponDTO) {
+    @SuppressWarnings("null")
+    public @NonNull Coupon updateCoupon(@NonNull Long id, CouponDTO couponDTO) {
         Coupon coupon = getCouponById(id);
         
         if (couponDTO.getCode() != null) coupon.setCode(couponDTO.getCode().toUpperCase());
@@ -85,9 +88,8 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void deleteCoupon(Long id) {
-        Coupon coupon = getCouponById(id);
-        couponRepository.delete(coupon);
+    public void deleteCoupon(@NonNull Long id) {
+        couponRepository.delete(getCouponById(id));
     }
 
     @Override
@@ -107,7 +109,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public Page<Coupon> getAllCouponsPaginated(Pageable pageable) {
+    public Page<Coupon> getAllCouponsPaginated(@NonNull Pageable pageable) {
         return couponRepository.findAll(pageable);
     }
 
@@ -183,14 +185,14 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void activateCoupon(Long id) {
+    public void activateCoupon(@NonNull Long id) {
         Coupon coupon = getCouponById(id);
         coupon.setIsActive(true);
         couponRepository.save(coupon);
     }
 
     @Override
-    public void deactivateCoupon(Long id) {
+    public void deactivateCoupon(@NonNull Long id) {
         Coupon coupon = getCouponById(id);
         coupon.setIsActive(false);
         couponRepository.save(coupon);

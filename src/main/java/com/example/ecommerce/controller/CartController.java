@@ -10,7 +10,6 @@ import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.CartService;
 import com.example.ecommerce.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,11 +23,13 @@ import java.util.Map;
 @RequestMapping("/api/cart")
 @CrossOrigin(origins = "*")
 public class CartController {
-    @Autowired
-    private CartService cartService;
+    private final CartService cartService;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
+    public CartController(CartService cartService, UserService userService) {
+        this.cartService = cartService;
+        this.userService = userService;
+    }
 
     @GetMapping
     public ResponseEntity<CartDTO> getMyCart(Authentication authentication) {
@@ -62,22 +63,22 @@ public class CartController {
     }
 
     @DeleteMapping("/items/{cartItemId}")
-    public ResponseEntity<ApiResponse> removeFromCart(
+    public ResponseEntity<ApiResponse<Void>> removeFromCart(
             @PathVariable Long cartItemId,
             Authentication authentication
     ) {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         cartService.removeFromCart(user.getId(), cartItemId);
-        return ResponseEntity.ok(new ApiResponse(true, "Item removed from cart successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Item removed from cart successfully"));
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<ApiResponse> clearCart(Authentication authentication) {
+    public ResponseEntity<ApiResponse<Void>> clearCart(Authentication authentication) {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         cartService.clearCart(user.getId());
-        return ResponseEntity.ok(new ApiResponse(true, "Cart cleared successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Cart cleared successfully"));
     }
 
     @GetMapping("/count")
@@ -91,11 +92,11 @@ public class CartController {
     }
 
     @PutMapping("/sync")
-    public ResponseEntity<ApiResponse> syncCartPrices(Authentication authentication) {
+    public ResponseEntity<ApiResponse<Void>> syncCartPrices(Authentication authentication) {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         cartService.syncCartPrices(user.getId());
-        return ResponseEntity.ok(new ApiResponse(true, "Cart prices synced successfully"));
+        return ResponseEntity.ok(new ApiResponse<Void>(true, "Cart prices synced successfully"));
     }
 
     @GetMapping("/all")

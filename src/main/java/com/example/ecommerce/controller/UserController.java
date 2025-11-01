@@ -8,12 +8,10 @@ import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,12 +25,13 @@ import java.util.Map;
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
 public class UserController {
-    
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
+
+    public UserController(UserService userService, UserMapper userMapper) {
+        this.userService = userService;
+        this.userMapper = userMapper;
+    }
 
     /**
      * Get all users (Admin only)
@@ -119,9 +118,9 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok(new ApiResponse(true, "User deleted successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "User deleted successfully"));
     }
 
     /**
@@ -149,12 +148,12 @@ public class UserController {
      */
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> updateUserRole(
+    public ResponseEntity<ApiResponse<Void>> updateUserRole(
             @PathVariable Long id,
             @RequestParam String role
     ) {
         userService.updateUserRole(id, role);
-        return ResponseEntity.ok(new ApiResponse(true, "User role updated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "User role updated successfully"));
     }
 
     /**
@@ -162,9 +161,9 @@ public class UserController {
      */
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> activateUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable Long id) {
         userService.activateUser(id);
-        return ResponseEntity.ok(new ApiResponse(true, "User activated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "User activated successfully"));
     }
 
     /**
@@ -172,23 +171,23 @@ public class UserController {
      */
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deactivateUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable Long id) {
         userService.deactivateUser(id);
-        return ResponseEntity.ok(new ApiResponse(true, "User deactivated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "User deactivated successfully"));
     }
 
     /**
      * Change password for current user
      */
     @PutMapping("/me/change-password")
-    public ResponseEntity<ApiResponse> changePassword(
+    public ResponseEntity<ApiResponse<Void>> changePassword(
             Authentication authentication,
             @Valid @RequestBody ChangePasswordDTO changePasswordDTO
     ) {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         userService.changePassword(user.getId(), changePasswordDTO);
-        return ResponseEntity.ok(new ApiResponse(true, "Password changed successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Password changed successfully"));
     }
 
     /**

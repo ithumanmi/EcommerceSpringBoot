@@ -5,7 +5,6 @@ import com.example.ecommerce.dto.PromotionDTO;
 import com.example.ecommerce.model.Promotion;
 import com.example.ecommerce.service.PromotionService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +19,11 @@ import java.util.List;
 @RequestMapping("/api/promotions")
 @CrossOrigin(origins = "*")
 public class PromotionController {
-    @Autowired
-    private PromotionService promotionService;
+    private final PromotionService promotionService;
+
+    public PromotionController(PromotionService promotionService) {
+        this.promotionService = promotionService;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -84,23 +86,23 @@ public class PromotionController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deletePromotion(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePromotion(@PathVariable Long id) {
         promotionService.deletePromotion(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Promotion deleted successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Promotion deleted successfully"));
     }
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> activatePromotion(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activatePromotion(@PathVariable Long id) {
         promotionService.activatePromotion(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Promotion activated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Promotion activated successfully"));
     }
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse> deactivatePromotion(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivatePromotion(@PathVariable Long id) {
         promotionService.deactivatePromotion(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Promotion deactivated successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Promotion deactivated successfully"));
     }
 }
 
