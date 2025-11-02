@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,7 +50,7 @@ public class PromotionController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Promotion> getPromotionById(@PathVariable Long id) {
+    public ResponseEntity<Promotion> getPromotionById(@PathVariable @NonNull Long id) {
         Promotion promotion = promotionService.getPromotionById(id);
         return ResponseEntity.ok(promotion);
     }
@@ -77,7 +78,7 @@ public class PromotionController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Promotion> updatePromotion(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @Valid @RequestBody PromotionDTO promotionDTO
     ) {
         Promotion promotion = promotionService.updatePromotion(id, promotionDTO);
@@ -86,21 +87,21 @@ public class PromotionController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deletePromotion(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePromotion(@PathVariable @NonNull Long id) {
         promotionService.deletePromotion(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Promotion deleted successfully"));
     }
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> activatePromotion(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activatePromotion(@PathVariable @NonNull Long id) {
         promotionService.activatePromotion(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Promotion activated successfully"));
     }
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deactivatePromotion(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivatePromotion(@PathVariable @NonNull Long id) {
         promotionService.deactivatePromotion(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Promotion deactivated successfully"));
     }

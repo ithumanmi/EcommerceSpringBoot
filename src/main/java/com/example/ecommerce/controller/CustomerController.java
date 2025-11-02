@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;    
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class CustomerController {
 
     @GetMapping("/my-addresses/{id}")
     public ResponseEntity<CustomerAddress> getMyAddressById(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             Authentication authentication
     ) {
         String username = authentication.getName();
@@ -69,7 +70,7 @@ public class CustomerController {
 
     @PutMapping("/my-addresses/{id}")
     public ResponseEntity<CustomerAddress> updateMyAddress(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @Valid @RequestBody CustomerAddressDTO addressDTO,
             Authentication authentication
     ) {
@@ -81,7 +82,7 @@ public class CustomerController {
 
     @DeleteMapping("/my-addresses/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteMyAddress(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             Authentication authentication
     ) {
         String username = authentication.getName();
@@ -92,7 +93,7 @@ public class CustomerController {
 
     @PutMapping("/my-addresses/{id}/set-default")
     public ResponseEntity<ApiResponse<Void>> setDefaultAddress(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             Authentication authentication
     ) {
         String username = authentication.getName();
@@ -138,7 +139,7 @@ public class CustomerController {
 
     @GetMapping("/{userId}/stats")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CustomerStatsDTO> getCustomerStats(@PathVariable Long userId) {
+    public ResponseEntity<CustomerStatsDTO> getCustomerStats(@PathVariable @NonNull Long userId) {
         CustomerStatsDTO stats = customerService.getCustomerStats(userId);
         return ResponseEntity.ok(stats);
     }
@@ -181,14 +182,14 @@ public class CustomerController {
 
     @GetMapping("/{userId}/addresses")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<CustomerAddress>> getCustomerAddresses(@PathVariable Long userId) {
+    public ResponseEntity<List<CustomerAddress>> getCustomerAddresses(@PathVariable @NonNull Long userId) {
         List<CustomerAddress> addresses = customerService.getCustomerAddresses(userId);
         return ResponseEntity.ok(addresses);
     }
 
     @GetMapping("/{userId}/preferences")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CustomerPreference> getCustomerPreferences(@PathVariable Long userId) {
+    public ResponseEntity<CustomerPreference> getCustomerPreferences(@PathVariable @NonNull Long userId) {
         CustomerPreference preferences = customerService.getCustomerPreferences(userId);
         return ResponseEntity.ok(preferences);
     }

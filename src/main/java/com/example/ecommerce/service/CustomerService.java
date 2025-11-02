@@ -23,7 +23,7 @@ public interface CustomerService {
     CustomerPreference getCustomerPreferences(Long userId);
     CustomerPreference updateCustomerPreferences(Long userId, CustomerPreferenceDTO preferenceDTO);
     
-    CustomerStatsDTO getCustomerStats(Long userId);
+    CustomerStatsDTO getCustomerStats(@NonNull Long userId);
     List<CustomerStatsDTO> getAllCustomerStats();
     Page<CustomerStatsDTO> getAllCustomerStatsPaginated(Pageable pageable);
     

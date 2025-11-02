@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +71,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserProfileDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserProfileDTO> getUserById(@PathVariable @NonNull Long id) {
         UserProfileDTO userProfile = userService.getUserProfile(id);
         return ResponseEntity.ok(userProfile);
     }
@@ -92,7 +93,7 @@ public class UserController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserProfileDTO> updateUser(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @Valid @RequestBody UpdateUserDTO updateUserDTO
     ) {
         UserProfileDTO updatedProfile = userService.updateUserProfile(id, updateUserDTO);
@@ -118,7 +119,7 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable @NonNull Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User deleted successfully"));
     }
@@ -149,7 +150,7 @@ public class UserController {
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updateUserRole(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam String role
     ) {
         userService.updateUserRole(id, role);
@@ -161,7 +162,7 @@ public class UserController {
      */
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable @NonNull Long id) {
         userService.activateUser(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User activated successfully"));
     }
@@ -171,7 +172,7 @@ public class UserController {
      */
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable @NonNull Long id) {
         userService.deactivateUser(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User deactivated successfully"));
     }

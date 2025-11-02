@@ -8,6 +8,7 @@ import com.example.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryDTO>> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CategoryDTO>> getCategoryById(@PathVariable @NonNull Long id) {
         Category category = categoryService.getCategoryById(id);
         if (category != null) {
             CategoryDTO categoryDTO = categoryMapper.toDTO(category);
@@ -56,7 +57,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(@PathVariable Long id, 
+    public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(@PathVariable @NonNull Long id, 
                                                                   @Valid @RequestBody CategoryDTO categoryDTO) {
         categoryDTO.setId(id); // Ensure the ID is set
         Category category = categoryMapper.toEntity(categoryDTO);
@@ -71,7 +72,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable @NonNull Long id) {
         boolean deleted = categoryService.deleteCategory(id);
         if (deleted) {
             return ResponseEntity.ok(ApiResponse.deleted());

@@ -22,30 +22,24 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category getCategoryById(@NonNull Long id) {
-        return categoryRepository.findById(id).orElse(null);
+    @SuppressWarnings("null")
+    public @NonNull Category getCategoryById(@NonNull Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
     }
-
     @Override
-    public Category createCategory(Category category) {
+    @SuppressWarnings("null")
+    public Category createCategory(@NonNull Category category) {
         return categoryRepository.save(category);
     }
 
     @Override
-    public Category updateCategory(@NonNull Long id, Category category) {
-        if (categoryRepository.existsById(id)) {
-            category.setId(id);
-            return categoryRepository.save(category);
-        }
-        return null;
+    @SuppressWarnings("null")
+    public Category updateCategory(@NonNull Long id, @NonNull Category category) {
+        return categoryRepository.save(category);
     }
-
-    @Override
     public boolean deleteCategory(@NonNull Long id) {
-        if (categoryRepository.existsById(id)) {
-            categoryRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        categoryRepository.deleteById(id);
+        return categoryRepository.existsById(id);
     }
 } 

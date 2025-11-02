@@ -135,6 +135,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public void cancelOrder(@NonNull Long id) {
         Order order = getOrderById(id);
         if ("CANCELLED".equals(order.getStatus())) {
@@ -145,7 +146,6 @@ public class OrderServiceImpl implements OrderService {
         }
         
         for (OrderItem item : order.getItems()) {
-            @SuppressWarnings("null")
             Long productId = item.getProductId();
             productService.increaseStock(productId, item.getQuantity());
             productService.incrementSoldCount(productId, -item.getQuantity());

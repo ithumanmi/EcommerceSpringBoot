@@ -9,13 +9,13 @@ import com.example.ecommerce.service.ActivityLogService;
 import com.example.ecommerce.service.AdminDashboardService;
 import com.example.ecommerce.service.SystemSettingService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,14 +27,15 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-    @Autowired
-    private AdminDashboardService dashboardService;
-    
-    @Autowired
-    private SystemSettingService systemSettingService;
-    
-    @Autowired
-    private ActivityLogService activityLogService;
+    private final AdminDashboardService dashboardService;
+    private final SystemSettingService systemSettingService;
+    private final ActivityLogService activityLogService;
+
+    public AdminController(AdminDashboardService dashboardService, SystemSettingService systemSettingService, ActivityLogService activityLogService) {
+        this.dashboardService = dashboardService;
+        this.systemSettingService = systemSettingService;
+        this.activityLogService = activityLogService;
+    }
 
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
@@ -49,7 +50,7 @@ public class AdminController {
     }
 
     @GetMapping("/settings/{id}")
-    public ResponseEntity<SystemSetting> getSettingById(@PathVariable Long id) {
+    public ResponseEntity<SystemSetting> getSettingById(@PathVariable @NonNull Long id) {
         SystemSetting setting = systemSettingService.getSettingById(id);
         return ResponseEntity.ok(setting);
     }
@@ -80,7 +81,7 @@ public class AdminController {
 
     @PutMapping("/settings/{id}")
     public ResponseEntity<SystemSetting> updateSetting(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @Valid @RequestBody SystemSettingDTO settingDTO
     ) {
         SystemSetting setting = systemSettingService.updateSetting(id, settingDTO);
@@ -97,7 +98,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/settings/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteSetting(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSetting(@PathVariable @NonNull Long id) {
         systemSettingService.deleteSetting(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Setting deleted successfully"));
     }
@@ -119,13 +120,13 @@ public class AdminController {
     }
 
     @GetMapping("/activity-logs/{id}")
-    public ResponseEntity<ActivityLog> getActivityLogById(@PathVariable Long id) {
+    public ResponseEntity<ActivityLog> getActivityLogById(@PathVariable @NonNull Long id) {
         ActivityLog log = activityLogService.getLogById(id);
         return ResponseEntity.ok(log);
     }
 
     @GetMapping("/activity-logs/user/{userId}")
-    public ResponseEntity<List<ActivityLog>> getActivityLogsByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<ActivityLog>> getActivityLogsByUser(@PathVariable @NonNull Long userId) {
         List<ActivityLog> logs = activityLogService.getLogsByUser(userId);
         return ResponseEntity.ok(logs);
     }

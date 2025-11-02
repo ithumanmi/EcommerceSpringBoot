@@ -150,7 +150,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerPreference updateCustomerPreferences(Long userId, CustomerPreferenceDTO preferenceDTO) {
+    @SuppressWarnings("null")
+    public @NonNull CustomerPreference updateCustomerPreferences(Long userId, CustomerPreferenceDTO preferenceDTO) {
         CustomerPreference preference = getCustomerPreferences(userId);
 
         if (preferenceDTO.getEmailNotifications() != null) {
@@ -173,7 +174,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerStatsDTO getCustomerStats(Long userId) {
+    public CustomerStatsDTO getCustomerStats(@NonNull Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -226,6 +227,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public Page<CustomerStatsDTO> getAllCustomerStatsPaginated(Pageable pageable) {
         List<CustomerStatsDTO> allStats = getAllCustomerStats();
         int start = (int) pageable.getOffset();

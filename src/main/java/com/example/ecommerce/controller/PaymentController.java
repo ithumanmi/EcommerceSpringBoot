@@ -2,6 +2,7 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.model.Payment;
 import com.example.ecommerce.service.PaymentService;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    public Payment getPaymentById(@PathVariable Long id) {
+    public Payment getPaymentById(@PathVariable @NonNull Long id) {
         return paymentService.getPaymentById(id);
     }
 

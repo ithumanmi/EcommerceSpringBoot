@@ -2,6 +2,7 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.model.Shipping;
 import com.example.ecommerce.service.ShippingService;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class ShippingController {
     }
 
     @GetMapping("/{id}")
-    public Shipping getShippingById(@PathVariable Long id) {
+    public Shipping getShippingById(@PathVariable @NonNull Long id) {
         return shippingService.getShippingById(id);
     }
 

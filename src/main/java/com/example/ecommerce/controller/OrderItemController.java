@@ -2,6 +2,7 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.model.OrderItem;
 import com.example.ecommerce.service.OrderItemService;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class OrderItemController {
     }
 
     @GetMapping("/{id}")
-    public OrderItem getOrderItemById(@PathVariable Long id) {
+    public OrderItem getOrderItemById(@PathVariable @NonNull Long id) {
         return orderItemService.getOrderItemById(id);
     }
 

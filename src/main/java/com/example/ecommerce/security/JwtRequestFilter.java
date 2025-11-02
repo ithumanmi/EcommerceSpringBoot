@@ -25,6 +25,31 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Check all possible Swagger and public paths
+        boolean shouldSkip = path.startsWith("/swagger-ui") 
+            || path.startsWith("/v3/api-docs") 
+            || path.startsWith("/api-docs")
+            || path.startsWith("/swagger-resources") 
+            || path.startsWith("/webjars") 
+            || path.startsWith("/configuration")
+            || path.startsWith("/favicon.ico")
+            || path.equals("/swagger-ui.html")
+            || path.equals("/swagger-ui/index.html")
+            || path.equals("/api-docs")
+            || path.equals("/")
+            || path.startsWith("/actuator")
+            || path.startsWith("/api/auth")
+            || path.equals("/api/categories")
+            || path.equals("/api/products");
+        
+        // Always log to help debugging
+        logger.debug("JWT Filter - Path: " + path + " - Will skip: " + shouldSkip);
+        return shouldSkip;
+    }
+
+    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");

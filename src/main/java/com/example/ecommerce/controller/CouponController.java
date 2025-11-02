@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +60,7 @@ public class CouponController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Coupon> getCouponById(@PathVariable Long id) {
+    public ResponseEntity<Coupon> getCouponById(@PathVariable @NonNull Long id) {
         Coupon coupon = couponService.getCouponById(id);
         return ResponseEntity.ok(coupon);
     }
@@ -93,7 +94,7 @@ public class CouponController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Coupon> updateCoupon(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @Valid @RequestBody CouponDTO couponDTO
     ) {
         Coupon coupon = couponService.updateCoupon(id, couponDTO);
@@ -102,7 +103,7 @@ public class CouponController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCoupon(@PathVariable @NonNull Long id) {
         couponService.deleteCoupon(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Coupon deleted successfully"));
     }
@@ -124,21 +125,21 @@ public class CouponController {
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> activateCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activateCoupon(@PathVariable @NonNull Long id) {
         couponService.activateCoupon(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Coupon activated successfully"));
     }
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deactivateCoupon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivateCoupon(@PathVariable @NonNull Long id) {
         couponService.deactivateCoupon(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Coupon deactivated successfully"));
     }
 
     @GetMapping("/{id}/usage")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<CouponUsage>> getCouponUsageHistory(@PathVariable Long id) {
+    public ResponseEntity<List<CouponUsage>> getCouponUsageHistory(@PathVariable @NonNull Long id) {
         List<CouponUsage> usage = couponService.getCouponUsageHistory(id);
         return ResponseEntity.ok(usage);
     }
@@ -153,7 +154,7 @@ public class CouponController {
 
     @GetMapping("/{id}/usage/count")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Long>> getCouponUsageCount(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Long>> getCouponUsageCount(@PathVariable @NonNull Long id) {
         long count = couponService.getCouponUsageCount(id);
         Map<String, Long> response = new HashMap<>();
         response.put("usageCount", count);

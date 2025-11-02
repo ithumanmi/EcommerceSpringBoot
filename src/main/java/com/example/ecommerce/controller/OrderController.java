@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +59,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable @NonNull Long id, Authentication authentication) {
         OrderDTO order = orderService.getOrderDTOById(id);
         String username = authentication.getName();
         User user = userService.findByUsername(username);
@@ -126,7 +127,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable @NonNull Long id, Authentication authentication) {
         Order order = orderService.getOrderById(id);
         String username = authentication.getName();
         User user = userService.findByUsername(username);
@@ -142,7 +143,7 @@ public class OrderController {
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updateOrderStatus(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam String status
     ) {
         orderService.updateOrderStatus(id, status);
@@ -152,7 +153,7 @@ public class OrderController {
     @PutMapping("/{id}/payment-status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updatePaymentStatus(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam String paymentStatus
     ) {
         orderService.updatePaymentStatus(id, paymentStatus);
@@ -175,7 +176,7 @@ public class OrderController {
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Order>> getOrdersByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<Order>> getOrdersByUser(@PathVariable @NonNull Long userId) {
         List<Order> orders = orderService.getOrdersByUser(userId);
         return ResponseEntity.ok(orders);
     }

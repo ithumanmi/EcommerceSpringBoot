@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +55,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable @NonNull Long id) {
         Product product = productService.getProductById(id);
         productService.incrementViewCount(id);
         return ResponseEntity.ok(productMapper.toDTO(product));
@@ -142,7 +143,7 @@ public class ProductController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDTO> updateProduct(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @Valid @RequestBody UpdateProductDTO updateProductDTO
     ) {
         Product updatedProduct = productService.updateProduct(id, updateProductDTO);
@@ -151,7 +152,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable @NonNull Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Product deleted successfully"));
     }
@@ -159,7 +160,7 @@ public class ProductController {
     @PutMapping("/{id}/stock")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updateStock(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam Integer quantity
     ) {
         productService.updateStock(id, quantity);
@@ -169,7 +170,7 @@ public class ProductController {
     @PutMapping("/{id}/stock/increase")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> increaseStock(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam Integer quantity
     ) {
         productService.increaseStock(id, quantity);
@@ -179,7 +180,7 @@ public class ProductController {
     @PutMapping("/{id}/stock/decrease")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> decreaseStock(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam Integer quantity
     ) {
         productService.decreaseStock(id, quantity);
@@ -188,21 +189,21 @@ public class ProductController {
 
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> activateProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> activateProduct(@PathVariable @NonNull Long id) {
         productService.activateProduct(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Product activated successfully"));
     }
 
     @PutMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deactivateProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deactivateProduct(@PathVariable @NonNull Long id) {
         productService.deactivateProduct(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Product deactivated successfully"));
     }
 
     @PutMapping("/{id}/toggle-featured")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> toggleFeatured(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> toggleFeatured(@PathVariable @NonNull Long id) {
         productService.toggleFeatured(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Featured status toggled successfully"));
     }

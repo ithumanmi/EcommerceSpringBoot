@@ -11,6 +11,7 @@ import com.example.ecommerce.service.CartService;
 import com.example.ecommerce.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,7 @@ public class CartController {
 
     @PutMapping("/items/{cartItemId}")
     public ResponseEntity<CartItem> updateCartItem(
-            @PathVariable Long cartItemId,
+            @PathVariable @NonNull Long cartItemId,
             @Valid @RequestBody UpdateCartItemDTO updateCartItemDTO,
             Authentication authentication
     ) {
@@ -64,7 +65,7 @@ public class CartController {
 
     @DeleteMapping("/items/{cartItemId}")
     public ResponseEntity<ApiResponse<Void>> removeFromCart(
-            @PathVariable Long cartItemId,
+            @PathVariable @NonNull Long cartItemId,
             Authentication authentication
     ) {
         String username = authentication.getName();
